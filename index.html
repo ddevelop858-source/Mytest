@@ -2,252 +2,264 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GROM - Sport & Stream</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GROM PRO - Titan System</title>
     <style>
         :root {
             --primary: #00f2ff;
             --accent: #7000ff;
-            --bg: #0a0a0a;
-            --card-bg: rgba(255, 255, 255, 0.05);
+            --bg: #050505;
+            --card: #121212;
         }
 
-        body {
-            margin: 0;
-            padding: 0;
+        body, html {
+            margin: 0; padding: 0;
+            background: var(--bg);
+            color: white;
             font-family: 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg);
-            color: white;
-            overflow-x: hidden;
+            height: 100%; overflow: hidden;
         }
 
-        /* Шапка */
-        header {
-            padding: 20px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(to bottom, #111, transparent);
+        /* ЭКРАН ВХОДА (ЗАСТАВКА) */
+        #splash {
+            position: fixed; inset: 0;
+            background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), 
+                        url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop');
+            background-size: cover; background-position: center;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 2000; flex-direction: column;
         }
 
-        .logo {
-            font-size: 2.5rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            color: var(--primary);
-            text-shadow: 0 0 15px var(--primary);
+        #letters-container { display: flex; gap: 10px; margin-bottom: 30px; }
+
+        .graffiti {
+            font-size: 70px; font-weight: 900; color: var(--primary);
+            text-shadow: 4px 4px 0px var(--accent), 0 0 20px rgba(0,242,255,0.5);
+            opacity: 0; transform: translateY(-300px);
+            font-family: 'Arial Black', sans-serif;
         }
 
-        /* Правый блок управления */
-        .controls {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 1000;
+        @keyframes dropIn {
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .btn-stream {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+        .auth-input {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid var(--accent);
+            color: white; padding: 15px; border-radius: 30px;
+            text-align: center; outline: none; width: 220px;
+            font-size: 18px; letter-spacing: 2px;
+            backdrop-filter: blur(10px);
             transition: 0.3s;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        .btn-europe {
-            background: #ff0037;
-            color: white;
-            font-size: 10px;
-            text-transform: uppercase;
-            border: 2px solid white;
+        .auth-input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
+
+        /* ГЛАВНЫЙ ИНТЕРФЕЙС */
+        #app { display: none; height: 100%; flex-direction: column; }
+
+        header {
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+            background: #000; border-bottom: 1px solid #222;
         }
 
-        .btn-g {
-            background: var(--primary);
-            color: #000;
-            font-size: 24px;
-            position: relative;
+        /* Радио-Логотип */
+        .logo-g {
+            width: 55px; height: 55px; border-radius: 50%;
+            background: var(--primary); color: #000;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 24px; cursor: pointer;
+            box-shadow: 0 0 15px var(--primary); transition: 0.3s;
         }
 
-        .btn-g::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid var(--primary);
-            animation: pulse 1.5s infinite;
+        .logo-g.playing { 
+            animation: pulse 1.2s infinite; 
+            background: #ff0037; 
+            box-shadow: 0 0 20px #ff0037; 
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(1.5); opacity: 0; }
+        @keyframes pulse { 
+            0% { transform: scale(1); } 
+            50% { transform: scale(1.1); opacity: 0.8; } 
+            100% { transform: scale(1); } 
         }
 
         /* Контент */
-        .main-container {
-            display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 20px;
-            padding: 20px;
-            height: calc(100vh - 120px);
+        .scroll-area { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 80px; }
+
+        .card { 
+            background: var(--card); border-radius: 20px; 
+            padding: 20px; margin-bottom: 15px; border: 1px solid #222; 
         }
 
-        .sport-content {
-            background: var(--card-bg);
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            backdrop-filter: blur(10px);
+        /* Вращающаяся звезда */
+        .star-box { display: flex; align-items: center; gap: 15px; }
+        .star-icon {
+            width: 45px; height: 45px;
+            background: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png');
+            background-size: contain; filter: invert(80%) sepia(50%) saturate(5000%) hue-rotate(160deg);
+            animation: spin 5s linear infinite;
         }
 
-        .hero-title {
-            font-size: 4rem;
-            margin: 0;
-            line-height: 1;
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* Стили чата */
+        #chat-view { display: none; }
+        #messages-flow { height: 65vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 5px; }
+        
+        .bubble { 
+            background: #1e1e1e; padding: 12px 16px; border-radius: 18px; 
+            max-width: 85%; align-self: flex-start; position: relative;
+            border-bottom-left-radius: 2px;
+        }
+        
+        .bubble.me { 
+            align-self: flex-end; background: var(--accent); 
+            border-bottom-left-radius: 18px; border-bottom-right-radius: 2px;
         }
 
-        .hero-title span {
-            color: var(--accent);
+        .del-msg { color: #ff4444; font-size: 20px; margin-left: 10px; cursor: pointer; float: right; line-height: 1; }
+
+        .chat-input-bar { 
+            display: flex; gap: 10px; padding: 10px 0; background: var(--bg);
         }
 
-        /* Чат */
-        .chat-section {
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid var(--accent);
-            overflow: hidden;
+        /* Навигация */
+        nav {
+            position: fixed; bottom: 0; width: 100%; height: 70px;
+            background: #000; border-top: 1px solid #222;
+            display: flex; justify-content: space-around; align-items: center;
         }
-
-        .chat-header {
-            padding: 15px;
-            background: var(--accent);
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .messages {
-            flex-grow: 1;
-            padding: 15px;
-            overflow-y: auto;
-            font-size: 0.9rem;
-        }
-
-        .msg {
-            margin-bottom: 10px;
-            padding: 8px 12px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.05);
-        }
-
-        .msg b { color: var(--primary); }
-
-        .chat-input {
-            padding: 15px;
-            display: flex;
-            gap: 10px;
-        }
-
-        input {
-            flex-grow: 1;
-            background: #222;
-            border: none;
-            padding: 10px;
-            color: white;
-            border-radius: 5px;
-        }
-
-        /* "От себя" — Энерго-виджет */
-        .energy-bar {
-            margin-top: 30px;
-            width: 300px;
-        }
-        .bar-bg {
-            height: 10px;
-            background: #333;
-            border-radius: 5px;
-            margin-top: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-        .bar-fill {
-            width: 75%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
-            box-shadow: 0 0 10px var(--primary);
-        }
+        .nav-link { color: #444; font-size: 10px; text-align: center; text-decoration: none; }
+        .nav-link.active { color: var(--primary); }
+        .nav-link b { display: block; font-size: 22px; margin-bottom: 2px; }
 
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">GROM</div>
-    </header>
-
-    <div class="controls">
-        <button class="btn-stream btn-europe">Европа<br>Плюс</button>
-        <button class="btn-stream btn-g">G</button>
+    <div id="splash">
+        <div id="letters-container">
+            <span class="graffiti">G</span>
+            <span class="graffiti">R</span>
+            <span class="graffiti">O</span>
+            <span class="graffiti">M</span>
+        </div>
+        <input type="password" id="passCode" class="auth-input" placeholder="PASSWORD">
     </div>
 
-    <main class="main-container">
-        <div class="sport-content">
-            <h1 class="hero-title">ПРЕДЕЛЫ<br><span>ТОЛЬКО В ГОЛОВЕ</span></h1>
-            <p>Персональная платформа для мониторинга тренировок и стриминга активностей.</p>
-            
-            <div class="energy-bar">
-                <span>УРОВЕНЬ ДРАЙВА</span>
-                <div class="bar-bg">
-                    <div class="bar-fill"></div>
+    <div id="app">
+        <header>
+            <div>
+                <div style="font-weight: 900; font-size: 22px; letter-spacing: 1px;">GROM <span style="color:var(--accent)">PRO</span></div>
+                <div id="userTag" style="font-size: 11px; color: var(--primary); opacity: 0.8;"></div>
+            </div>
+            <div class="logo-g" id="radioBtn" onclick="handleRadio()">G</div>
+        </header>
+
+        <main id="home-view" class="scroll-area">
+            <div class="card">
+                <div class="star-box">
+                    <div class="star-icon"></div>
+                    <div style="flex:1">
+                        <div style="font-size: 12px; margin-bottom: 5px;">ТВОЯ ЭНЕРГИЯ</div>
+                        <div style="height: 6px; background: #222; border-radius: 10px;">
+                            <div style="width: 92%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 10px;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <aside class="chat-section">
-            <div class="chat-header">LIVE CHAT</div>
-            <div class="messages" id="chatBox">
-                <div class="msg"><b>Admin:</b> Добро пожаловать на GROM!</div>
-                <div class="msg"><b>User122:</b> Какая сегодня тренировка?</div>
-                <div class="msg"><b>Grom_Fan:</b> Ждем прямой эфир в 18:00!</div>
+            <h3 style="margin: 20px 0 10px;">СТАТЬИ И ТРЕНИРОВКИ</h3>
+            <div class="card">
+                <h4 style="margin:0; color:var(--primary)">Техника G-тяги</h4>
+                <p style="font-size: 14px; color: #aaa; line-height: 1.5;">Разбор упражнения для максимального взрыва. Обсуждение техники открыто в чате для участников.</p>
             </div>
-            <div class="chat-input">
-                <input type="text" placeholder="Сообщение...">
-                <button style="background: var(--primary); border:none; border-radius:5px; padding:0 15px; cursor:pointer;">></button>
+            <div class="card">
+                <h4 style="margin:0; color:var(--primary)">Питание TITAN</h4>
+                <p style="font-size: 14px; color: #aaa; line-height: 1.5;">Топ-5 продуктов для восстановления после ночных тренировок.</p>
             </div>
-        </aside>
-    </main>
+        </main>
+
+        <main id="chat-view" class="scroll-area">
+            <div id="messages-flow">
+                <div class="bubble">
+                    <small style="color:var(--primary)">System:</small><br>
+                    Добро пожаловать в защищенный чат GROM. Сообщения удаляются локально.
+                </div>
+            </div>
+            <div class="chat-input-bar">
+                <input type="text" id="msgInput" placeholder="Сообщение..." style="flex:1; background:#1a1a1a; border:1px solid #333; padding:15px; border-radius:15px; color:white; outline:none;">
+                <button onclick="send()" style="background:var(--primary); border:none; padding:0 25px; border-radius:15px; font-weight:bold;">OK</button>
+            </div>
+        </main>
+
+        <nav>
+            <div class="nav-link active" onclick="tab('home-view', this)"><b>🏠</b>ГЛАВНАЯ</div>
+            <div class="nav-link" onclick="tab('chat-view', this)"><b>💬</b>ЧАТ</div>
+        </nav>
+    </div>
+
+    <audio id="audioStream" src="https://ep256.hostingradio.ru:8052/europaplus256.mp3"></audio>
 
     <script>
-        // Простая имитация добавления сообщений
-        const input = document.querySelector('input');
-        const btn = document.querySelector('.chat-input button');
-        const chatBox = document.getElementById('chatBox');
+        const KEY = "MORG"; // Твой новый пароль
+        const ID = "GR-" + Math.floor(1000 + Math.random() * 8999);
+        document.getElementById('userTag').innerText = "ID: " + ID;
 
-        btn.onclick = () => {
-            if(input.value) {
-                const div = document.createElement('div');
-                div.className = 'msg';
-                div.innerHTML = `<b>Вы:</b> ${input.value}`;
-                chatBox.appendChild(div);
-                input.value = '';
-                chatBox.scrollTop = chatBox.scrollHeight;
+        // Анимация букв при загрузке
+        window.addEventListener('DOMContentLoaded', () => {
+            const letters = document.querySelectorAll('.graffiti');
+            letters.forEach((l, i) => {
+                l.style.animation = `dropIn 0.6s forwards ${i * 0.15}s cubic-bezier(0.175, 0.885, 0.32, 1.2)`;
+            });
+        });
+
+        // Проверка пароля
+        document.getElementById('passCode').addEventListener('input', (e) => {
+            if (e.target.value.toUpperCase() === KEY) {
+                document.getElementById('splash').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('splash').style.display = 'none';
+                    document.getElementById('app').style.display = 'flex';
+                }, 500);
             }
-        };
-    </script>
-</body>
-</html>
+        });
+
+        // Навигация по табам
+        function tab(id, el) {
+            document.querySelectorAll('.scroll-area').forEach(m => m.style.display = 'none');
+            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).style.display = 'block';
+            el.classList.add('active');
+        }
+
+        // Логика Радио
+        let isLive = false;
+        const player = document.getElementById('audioStream');
+        function handleRadio() {
+            const btn = document.getElementById('radioBtn');
+            if (!isLive) {
+                player.play();
+                btn.classList.add('playing');
+            } else {
+                player.pause();
+                btn.classList.remove('playing');
+            }
+            isLive = !isLive;
+        }
+
+        // Логика Чата
+        function send() {
+            const input = document.getElementById('msgInput');
+            const flow = document.getElementById('messages-flow');
+            if (input.value.trim()) {
+                const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                const div = document.createElement('div');
+                div.className = 'bubble me';
+                div.innerHTML = `
+                    <span class="del-msg" onclick="this.parentElement.remove()">×</span>
+                    <div style="font-size:10px; opacity:0.6; margin-bottom:4px;">${ID} • ${now}</div>
+                    <div>${input.value}</div>
+                `;
+                flow.appendChild(div);
