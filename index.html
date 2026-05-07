@@ -3,263 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GROM PRO - Titan System</title>
+    <title>GROM PRO</title>
     <style>
         :root {
             --primary: #00f2ff;
             --accent: #7000ff;
             --bg: #050505;
-            --card: #121212;
         }
 
         body, html {
             margin: 0; padding: 0;
             background: var(--bg);
             color: white;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             height: 100%; overflow: hidden;
         }
 
-        /* ЭКРАН ВХОДА (ЗАСТАВКА) */
+        /* ЭКРАН ВХОДА */
         #splash {
             position: fixed; inset: 0;
-            background: linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.75)), 
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
                         url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop');
             background-size: cover; background-position: center;
-            display: flex; justify-content: center; align-items: center;
-            z-index: 2000; flex-direction: column;
+            display: flex; flex-direction: column; justify-content: center;
+            align-items: center; z-index: 5000;
         }
 
-        #letters-container { display: flex; gap: 10px; margin-bottom: 30px; }
-
-        .graffiti {
+        .letter-box { display: flex; gap: 10px; margin-bottom: 30px; }
+        .g-let {
             font-size: 70px; font-weight: 900; color: var(--primary);
-            text-shadow: 4px 4px 0px var(--accent), 0 0 20px rgba(0,242,255,0.5);
-            opacity: 0; transform: translateY(-300px);
-            font-family: 'Arial Black', sans-serif;
+            text-shadow: 0 0 20px var(--primary);
+            animation: drop 0.6s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0; transform: translateY(-100px);
         }
 
-        @keyframes dropIn {
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes drop { to { opacity: 1; transform: translateY(0); } }
 
-        .auth-input {
-            background: rgba(255,255,255,0.05);
+        .morg-input {
+            background: rgba(255,255,255,0.1);
             border: 2px solid var(--accent);
             color: white; padding: 15px; border-radius: 30px;
-            text-align: center; outline: none; width: 220px;
-            font-size: 18px; letter-spacing: 2px;
-            backdrop-filter: blur(10px);
-            transition: 0.3s;
+            text-align: center; width: 250px; font-size: 20px;
+            outline: none; backdrop-filter: blur(10px);
+            margin-bottom: 15px;
         }
 
-        .auth-input:focus { border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
+        /* КНОПКА ВОЙТИ */
+        .login-btn {
+            background: var(--primary);
+            color: #000; border: none;
+            padding: 12px 40px; border-radius: 25px;
+            font-weight: 900; font-size: 16px;
+            cursor: pointer; box-shadow: 0 0 15px var(--primary);
+            text-transform: uppercase; transition: 0.3s;
+        }
+        .login-btn:active { transform: scale(0.95); box-shadow: 0 0 5px var(--primary); }
 
-        /* ГЛАВНЫЙ ИНТЕРФЕЙС */
+        /* ИНТЕРФЕЙС (СКРЫТ) */
         #app { display: none; height: 100%; flex-direction: column; }
+        
+        header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: #111; border-bottom: 1px solid #222; }
+        .radio-logo { width: 50px; height: 50px; border-radius: 50%; background: var(--primary); color: #000; display: flex; align-items: center; justify-content: center; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px var(--primary); }
+        .radio-logo.playing { animation: pulse 1s infinite; background: #ff0037; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-        header {
-            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
-            background: #000; border-bottom: 1px solid #222;
-        }
-
-        /* Радио-Логотип */
-        .logo-g {
-            width: 55px; height: 55px; border-radius: 50%;
-            background: var(--primary); color: #000;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 24px; cursor: pointer;
-            box-shadow: 0 0 15px var(--primary); transition: 0.3s;
-        }
-
-        .logo-g.playing { 
-            animation: pulse 1.2s infinite; 
-            background: #ff0037; 
-            box-shadow: 0 0 20px #ff0037; 
-        }
-
-        @keyframes pulse { 
-            0% { transform: scale(1); } 
-            50% { transform: scale(1.1); opacity: 0.8; } 
-            100% { transform: scale(1); } 
-        }
-
-        /* Контент */
-        .scroll-area { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 80px; }
-
-        .card { 
-            background: var(--card); border-radius: 20px; 
-            padding: 20px; margin-bottom: 15px; border: 1px solid #222; 
-        }
-
-        /* Вращающаяся звезда */
-        .star-box { display: flex; align-items: center; gap: 15px; }
-        .star-icon {
-            width: 45px; height: 45px;
-            background: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png');
-            background-size: contain; filter: invert(80%) sepia(50%) saturate(5000%) hue-rotate(160deg);
-            animation: spin 5s linear infinite;
-        }
-
+        .content { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 80px; }
+        .card { background: #181818; border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid #222; }
+        .star-logo { width: 40px; height: 40px; background: url('https://cdn-icons-png.flaticon.com/512/1828/1828884.png'); background-size: contain; filter: invert(1); animation: spin 4s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* Стили чата */
+        /* ЧАТ */
         #chat-view { display: none; }
-        #messages-flow { height: 65vh; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 5px; }
-        
-        .bubble { 
-            background: #1e1e1e; padding: 12px 16px; border-radius: 18px; 
-            max-width: 85%; align-self: flex-start; position: relative;
-            border-bottom-left-radius: 2px;
-        }
-        
-        .bubble.me { 
-            align-self: flex-end; background: var(--accent); 
-            border-bottom-left-radius: 18px; border-bottom-right-radius: 2px;
-        }
+        .chat-flow { height: 60vh; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: #222; padding: 10px 15px; border-radius: 15px; align-self: flex-start; position: relative; }
+        .msg.me { align-self: flex-end; background: var(--accent); }
+        .del { position: absolute; top: -5px; right: -5px; color: red; font-weight: bold; cursor: pointer; }
 
-        .del-msg { color: #ff4444; font-size: 20px; margin-left: 10px; cursor: pointer; float: right; line-height: 1; }
-
-        .chat-input-bar { 
-            display: flex; gap: 10px; padding: 10px 0; background: var(--bg);
-        }
-
-        /* Навигация */
-        nav {
-            position: fixed; bottom: 0; width: 100%; height: 70px;
-            background: #000; border-top: 1px solid #222;
-            display: flex; justify-content: space-around; align-items: center;
-        }
-        .nav-link { color: #444; font-size: 10px; text-align: center; text-decoration: none; }
-        .nav-link.active { color: var(--primary); }
-        .nav-link b { display: block; font-size: 22px; margin-bottom: 2px; }
-
+        nav { position: fixed; bottom: 0; width: 100%; height: 65px; background: #111; display: flex; justify-content: space-around; align-items: center; }
+        .nav-item { color: #555; font-size: 11px; text-align: center; }
+        .nav-item.active { color: var(--primary); }
     </style>
 </head>
 <body>
 
     <div id="splash">
-        <div id="letters-container">
-            <span class="graffiti">G</span>
-            <span class="graffiti">R</span>
-            <span class="graffiti">O</span>
-            <span class="graffiti">M</span>
+        <div class="letter-box">
+            <span class="g-let" style="animation-delay: 0.1s">G</span>
+            <span class="g-let" style="animation-delay: 0.2s">R</span>
+            <span class="g-let" style="animation-delay: 0.3s">O</span>
+            <span class="g-let" style="animation-delay: 0.4s">M</span>
         </div>
-        <input type="password" id="passCode" class="auth-input" placeholder="PASSWORD">
+        <input type="password" id="passInput" class="morg-input" placeholder="ACCESS CODE">
+        <button class="login-btn" onclick="checkAuth()">ENTER</button>
+        <p id="err" style="color: red; display: none; margin-top: 10px;">WRONG CODE</p>
     </div>
 
     <div id="app">
         <header>
             <div>
-                <div style="font-weight: 900; font-size: 22px; letter-spacing: 1px;">GROM <span style="color:var(--accent)">PRO</span></div>
-                <div id="userTag" style="font-size: 11px; color: var(--primary); opacity: 0.8;"></div>
+                <div style="font-weight: 900; font-size: 20px;">GROM <span style="color:var(--accent)">PRO</span></div>
+                <div id="uID" style="font-size: 10px; color: var(--primary); font-family: monospace;"></div>
             </div>
-            <div class="logo-g" id="radioBtn" onclick="handleRadio()">G</div>
+            <div class="radio-logo" id="rBtn" onclick="toggleRadio()">G</div>
         </header>
 
-        <main id="home-view" class="scroll-area">
+        <main id="home" class="content">
             <div class="card">
-                <div class="star-box">
-                    <div class="star-icon"></div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="star-logo"></div>
                     <div style="flex:1">
-                        <div style="font-size: 12px; margin-bottom: 5px;">ТВОЯ ЭНЕРГИЯ</div>
-                        <div style="height: 6px; background: #222; border-radius: 10px;">
-                            <div style="width: 92%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 10px;"></div>
-                        </div>
+                        <small>ЭНЕРГИЯ TITAN</small>
+                        <div style="height:4px; background:#333; margin:5px 0;"><div style="width:92%; height:100%; background:var(--primary);"></div></div>
                     </div>
                 </div>
             </div>
-
-            <h3 style="margin: 20px 0 10px;">СТАТЬИ И ТРЕНИРОВКИ</h3>
             <div class="card">
-                <h4 style="margin:0; color:var(--primary)">Техника G-тяги</h4>
-                <p style="font-size: 14px; color: #aaa; line-height: 1.5;">Разбор упражнения для максимального взрыва. Обсуждение техники открыто в чате для участников.</p>
-            </div>
-            <div class="card">
-                <h4 style="margin:0; color:var(--primary)">Питание TITAN</h4>
-                <p style="font-size: 14px; color: #aaa; line-height: 1.5;">Топ-5 продуктов для восстановления после ночных тренировок.</p>
+                <h4>Техника G-тяги</h4>
+                <p style="font-size: 13px; color: #ccc;">Секреты мощного рывка.</p>
             </div>
         </main>
 
-        <main id="chat-view" class="scroll-area">
-            <div id="messages-flow">
-                <div class="bubble">
-                    <small style="color:var(--primary)">System:</small><br>
-                    Добро пожаловать в защищенный чат GROM. Сообщения удаляются локально.
-                </div>
-            </div>
-            <div class="chat-input-bar">
-                <input type="text" id="msgInput" placeholder="Сообщение..." style="flex:1; background:#1a1a1a; border:1px solid #333; padding:15px; border-radius:15px; color:white; outline:none;">
-                <button onclick="send()" style="background:var(--primary); border:none; padding:0 25px; border-radius:15px; font-weight:bold;">OK</button>
+        <main id="chat-view" class="content">
+            <div id="chatBox" class="chat-flow"></div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="msgIn" placeholder="Type..." style="flex:1; background:#222; border:none; padding:15px; color:white; border-radius:10px;">
+                <button onclick="send()" style="background:var(--primary); border:none; border-radius:10px; padding:0 20px;">OK</button>
             </div>
         </main>
 
         <nav>
-            <div class="nav-link active" onclick="tab('home-view', this)"><b>🏠</b>ГЛАВНАЯ</div>
-            <div class="nav-link" onclick="tab('chat-view', this)"><b>💬</b>ЧАТ</div>
+            <div class="nav-item active" onclick="showPage('home', this)">🏠<br>HOME</div>
+            <div class="nav-item" onclick="showPage('chat-view', this)">💬<br>CHAT</div>
         </nav>
     </div>
 
-    <audio id="audioStream" src="https://ep256.hostingradio.ru:8052/europaplus256.mp3"></audio>
+    <audio id="radio" src="https://ep256.hostingradio.ru:8052/europaplus256.mp3"></audio>
 
     <script>
-        const KEY = "MORG"; // Твой новый пароль
-        const ID = "GR-" + Math.floor(1000 + Math.random() * 8999);
-        document.getElementById('userTag').innerText = "ID: " + ID;
+        const KEY = "MORG";
+        const myID = "GR-" + Math.floor(Math.random() * 9999);
+        document.getElementById('uID').innerText = "ID: " + myID;
 
-        // Анимация букв при загрузке
-        window.addEventListener('DOMContentLoaded', () => {
-            const letters = document.querySelectorAll('.graffiti');
-            letters.forEach((l, i) => {
-                l.style.animation = `dropIn 0.6s forwards ${i * 0.15}s cubic-bezier(0.175, 0.885, 0.32, 1.2)`;
-            });
-        });
-
-        // Проверка пароля
-        document.getElementById('passCode').addEventListener('input', (e) => {
-            if (e.target.value.toUpperCase() === KEY) {
-                document.getElementById('splash').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash').style.display = 'none';
-                    document.getElementById('app').style.display = 'flex';
-                }, 500);
+        function checkAuth() {
+            const val = document.getElementById('passInput').value.toUpperCase();
+            if (val === KEY) {
+                document.getElementById('splash').style.display = 'none';
+                document.getElementById('app').style.display = 'flex';
+            } else {
+                document.getElementById('err').style.display = 'block';
             }
+        }
+
+        // Авто-проверка при вводе
+        document.getElementById('passInput').addEventListener('input', (e) => {
+            if (e.target.value.toUpperCase() === KEY) checkAuth();
         });
 
-        // Навигация по табам
-        function tab(id, el) {
-            document.querySelectorAll('.scroll-area').forEach(m => m.style.display = 'none');
-            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        function showPage(id, el) {
+            document.querySelectorAll('.content').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
             document.getElementById(id).style.display = 'block';
             el.classList.add('active');
         }
 
-        // Логика Радио
-        let isLive = false;
-        const player = document.getElementById('audioStream');
-        function handleRadio() {
-            const btn = document.getElementById('radioBtn');
-            if (!isLive) {
-                player.play();
-                btn.classList.add('playing');
-            } else {
-                player.pause();
-                btn.classList.remove('playing');
-            }
-            isLive = !isLive;
+        let isPlaying = false;
+        const audio = document.getElementById('radio');
+        function toggleRadio() {
+            if (!isPlaying) { audio.play(); document.getElementById('rBtn').classList.add('playing'); }
+            else { audio.pause(); document.getElementById('rBtn').classList.remove('playing'); }
+            isPlaying = !isPlaying;
         }
 
-        // Логика Чата
         function send() {
-            const input = document.getElementById('msgInput');
-            const flow = document.getElementById('messages-flow');
+            const input = document.getElementById('msgIn');
+            const box = document.getElementById('chatBox');
             if (input.value.trim()) {
-                const now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
                 const div = document.createElement('div');
-                div.className = 'bubble me';
-                div.innerHTML = `
-                    <span class="del-msg" onclick="this.parentElement.remove()">×</span>
-                    <div style="font-size:10px; opacity:0.6; margin-bottom:4px;">${ID} • ${now}</div>
-                    <div>${input.value}</div>
-                `;
-                flow.appendChild(div);
+                div.className = 'msg me';
+                div.innerHTML = `<span class="del" onclick="this.parentElement.remove()">×</span>
+                                 <small>${myID}</small><br>${input.value}`;
+                box.appendChild(div);
+                input.value = '';
+                box.scrollTop = box.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
